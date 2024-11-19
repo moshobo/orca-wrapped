@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ORCA Wrapped</title>
+    <link rel="stylesheet" href="static/css/styles.css">
+    <link rel="stylesheet" href="static/css/colors.css">
+    <link rel="icon" href="images/orca.png" type="image/png">
+</head>
+<body>
+    <div class="content">
+        <div class="content-header">
+            <h1>ORCA Wrapped</h1>
+            <p>Wrapping up your year in transit.</p>
+        </div>
+        <div class="step-container">
+            <div class="step-header">
+                <h2>Step 1: Download</h2>
+            </div>
+            <div class="step-body">
+                <p>The following will be a lot easier on a computer:</p>
+                <ol id="step-one">
+                    <li>Go to <a href="https://www.myorca.com/" target="_blank">myorca.com</a></li>
+                    <li>If you haven't already, create an account and link your ORCA card</li>
+                    <li>Once logged into your account, navigate to "My Cards" and find the ORCA card you'd like to wrap</li>
+                    <li>Click "Manage Card" and then select the "Card Activity" tab</li>
+                    <li>Select a Year from the dropdown, then scroll to the bottom of the table and select "Download CSV"</li>
+                </ol>
+            </div>
+        </div>
+        <div class="step-container">
+            <div class="step-header">
+                <h2>Step 2: Upload</h2>
+            </div>
+            <div class="step-body">
+                <p>Choose the CSV file that you downloaded in Step 1. Then, choose the year that you want to wrap up</p>
+                <div class="file-upload">
+                    <div class="info-input">
+                        <p>CSV File: </p>
+                        <input type="file" id="csvFileInput" accept=".csv" />
+                    </div>
+                    <div class="info-input">
+                        <p>Year:</p>
+                        <input
+                            type="number"
+                            id="year-input"
+                            name="analysis-year"
+                            min="1900"
+                            max="2100"
+                            placeholder="2024"
+                            value="2024"
+                        />
+                    </div>
+                    <div>
+                        <button id="run-script" onclick="runScript()">Load</button>
+                    </div>
+                    <div id="output"></div>
+                </div>
+                <script src="script.js"></script>
+            </div>
+        </div>
+        <div class="step-container">
+            <div class="step-header">
+                <h2>Step 3: Wrap it up!</h2>
+            </div>
+            <div id="stats-output"></div>
+        </div>
+        <div class="content-header">
+            <h3>About</h3>
+            <p>Built by Moshobo. Not affiliated with ORCA, or any other transit agency</p>
+            <p>Updated in November 2024</p>
+            <a href="https://www.flaticon.com/free-icons/orca" title="orca icons">Orca icons created by Nack_Thanakorn - Flaticon</a>
+        </div>
+        <div id="result-printed"></div>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+        <script src="script.js"></script>
+    </div>
+</body>
+</html>

@@ -1,0 +1,204 @@
+@import 'colors.css';
+
+:root {
+    --space-xsmall: 4px;
+    --space-small: 8px;
+    --space-medium: 16px;
+    --space-large: 32px;
+    --space-xlarge: 64px;
+}
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: sans-serif;
+    height: 100%;
+    margin: 0px;
+    padding-left: 20%;
+    padding-right: 20%;
+    flex-direction: column;
+    background-color: var(--foreground-0);
+    color: var(--background-0)
+}
+h1 {
+    font-size: 34px;
+}
+h2 {
+    font-size: 30px;
+    margin: 0px;
+}
+h3 {
+    font-size: 24px;
+    margin: 0px;
+}
+p {
+    font-size: 20px;
+    margin: 0px;
+}
+ul {
+    padding-left: none;
+    margin-top: var(--space-medium);
+    list-style: none;
+}
+li {
+    font-size: 16px;
+    margin-bottom: var(--space-small);
+    color: var(--foreground-1);
+}
+button {
+    background-color: var(--orca-yellow);
+    color: var(--background-0);
+    font-size: 20px;
+    margin-top: var(--space-small);
+    padding: var(--space-small) var(--space-large) var(--space-small) var(--space-large);
+    border-radius: 4px;
+    border: none;
+    font-weight: bold;
+}
+a {
+    color: var(--orca-yellow);
+    text-decoration: none;
+}
+a:visited {
+    color: var(--orca-orange);
+}
+.content {
+    max-width: 800px;
+}
+.content-header {
+    margin-top: var(--space-xlarge);
+}
+.step-container {
+    display: flex;
+    justify-content: flex-start;
+    flex-direction: column;
+    margin-top: var(--space-xlarge);
+}
+.step-header {
+    background-color: var(--orca-yellow);
+    padding: var(--space-medium);
+    border-radius: 8px;
+}
+.step-header h2 {
+    margin: 0px;
+}
+.step-body {
+    margin-top: var(--space-small);
+}
+.file-upload {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-small);
+    margin-top: var(--space-large);
+    max-width: 600px;
+}
+.info-input {
+    display: flex;
+    flex-direction: row;
+    gap: var(--space-xsmall);
+}
+#stats-output {
+    margin-top: var(--space-small);
+    height: 100%;
+    width: 100%;
+}
+.result {
+    background-image: linear-gradient(60deg, var(--orca-blue), var(--orca-teal));
+    color: var(--orca-yellow);
+    margin-top: var(--space-small);
+    padding: var(--space-large);
+    border-radius: 4px;
+    display: flex; /* Makes sure it scales with content */
+    flex-direction: column;
+}
+.result p {
+    color: var(--foreground-0);
+}
+.stat-row {
+    display: flex;
+    flex-direction: row;
+    gap: var(--space-xsmall);
+    margin-top: var(--space-small);
+}
+.number-stat {
+    color: var(--foreground-0);
+    font-weight: bold;
+}
+.result-header {
+    color: var(--foreground-0);
+}
+.headline-stats {
+    margin-top: var(--space-large);
+}
+.details-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin-top: var(--space-large);
+    flex-grow: 1;
+}
+.list-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    padding: var(--space-small);
+}
+.trip-container {
+    color: var(--background-0);
+    background-color: var(--orca-teal);
+    padding: var(--space-small);
+    margin-bottom: var(--space-xsmall);
+    border-radius: 8px;
+}
+.result-footer {
+    display: flex;
+    flex-direction: row;
+    padding: var(--space-small);
+    height: var(--space-medium);
+}
+.result-footer p {
+    font-size: 12px;
+}
+.inverted-logo {
+    height: 36px;
+    width: 36px;
+    filter: invert(1);
+}
+#all-routes li, #all-stops li {
+    color: var(--background-0);
+}
+#result-printed {
+    height: 1000px;
+    width: 1000px;
+    visibility: hidden;
+}
+#result-printed h2 {
+    font-size: 48px;
+}
+#result-printed h3 {
+    font-size: 36px;
+}
+#result-printed p {
+    color: var(--foreground-0);
+    font-size: 24px;
+}
+#result-printed li {
+    font-size: 24px;
+}
+#result-printed .list-container {
+    padding: var(--space-medium);
+}
+#result-printed li {
+    margin-bottom: var(--space-medium)
+}
+#step-one {
+    padding-left: var(--space-large);
+    margin-top: var(--space-medium);
+}
+#step-one li {
+    color: var(--background-0);
+    font-size: 20px;
+}

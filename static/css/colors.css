@@ -1,0 +1,13 @@
+:root {
+    --foreground-0: #FFFFFF;
+    --foreground-a: #F5F9FA;
+    --foreground-1: #D5E3EA;
+    --foreground-2: #ABC8D4;
+    --background-0: #000000;
+    --background-1: #3E6355;
+    --orca-yellow: #fdcd06;
+    --orca-orange: #f17a23;
+    --orca-teal: #6ac6b7;
+    --orca-blue: #5891aa;
+    --orca-blue-light: #4144;
+}
