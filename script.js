@@ -124,9 +124,11 @@ function calculateRouteTotals(rows, targetYear) {
         let stop = null
         let date = null
         const split_array = row[locationIndex].split(', Stop: ')
-        if (split_array.length === 2) { // Bus Route
+        if (split_array.length === 2) { // Bus Route or Light Rail
             route = split_array[0].split(': ')[1]
             stop = split_array[1]
+        } else if (locationArray.length === 2) { // Bus without Stop
+            route = (locationArray[1])
         } else { // Water taxi
             route = (locationArray[1] + ' ' + locationArray[2])
         }
@@ -142,9 +144,9 @@ function calculateRouteTotals(rows, targetYear) {
             routeCount[routeLongName] = 1
         }
 
-        if (stop in stopCount) { // Add "and not None"
+        if (stop != null && stop in stopCount) {
             stopCount[stop] = stopCount[stop] + 1
-        } else {
+        } else if (stop != null) {
             stopCount[stop] = 1
         }
 
