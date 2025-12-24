@@ -1,3 +1,50 @@
+function parseCSV(csvText) {
+    // Handle CSV with multi-line quoted fields
+    const rows = [];
+    let currentRow = [];
+    let currentField = '';
+    let insideQuotes = false;
+    
+    for (let i = 0; i < csvText.length; i++) {
+        const char = csvText[i];
+        const nextChar = csvText[i + 1];
+        
+        if (char === '"') {
+            if (insideQuotes && nextChar === '"') {
+                // Escaped quote
+                currentField += '"';
+                i++; // Skip next quote
+            } else {
+                // Toggle quote state
+                insideQuotes = !insideQuotes;
+            }
+        } else if (char === ',' && !insideQuotes) {
+            currentRow.push(currentField);
+            currentField = '';
+        } else if ((char === '\n' || (char === '\r' && nextChar === '\n')) && !insideQuotes) {
+            if (char === '\r') i++; // Skip \n in \r\n
+            currentRow.push(currentField);
+            if (currentRow.length > 1 || currentRow[0] !== '') {
+                rows.push(currentRow);
+            }
+            currentRow = [];
+            currentField = '';
+        } else {
+            currentField += char;
+        }
+    }
+    
+    // Don't forget the last field/row
+    if (currentField || currentRow.length > 0) {
+        currentRow.push(currentField);
+        if (currentRow.length > 1 || currentRow[0] !== '') {
+            rows.push(currentRow);
+        }
+    }
+    
+    return rows;
+}
+
 function runScript() {
     const fileInput = document.getElementById('csvFileInput')
     const file = fileInput.files[0];
@@ -8,7 +55,7 @@ function runScript() {
         const reader = new FileReader();
         reader.onload = function(e) {
             const csvText = e.target.result;
-            const rows = csvText.split('\n').map(row => row.split('","')); // Each values is wrapped in double quotes, since some values contain internal commas
+            const rows = parseCSV(csvText);
             statistics = calculateRouteTotals(rows, targetYear)
             displayStats(statistics)
         };
@@ -101,11 +148,20 @@ function calculateRouteTotals(rows, targetYear) {
     const dataRows = rows.slice(1);
     const locationIndex = headers.indexOf('Location');
     const activityIndex = headers.indexOf('Activity');
-    const dateIndex = headers.indexOf('"Date'); // TODO: Figure out how to get rid of the orphaned double-quote
+    const dateIndex = headers.indexOf('Date');
 
     const filteredRows = dataRows.filter(row => {
-        const activity = row[activityIndex].split(', ')[0];
-        const date = row[dateIndex];
+        // Guard against malformed/empty rows in the CSV
+        if (!row || row.length === 0) return false;
+        
+        const activityCell = row[activityIndex];
+        const dateCell = row[dateIndex];
+        
+        // Skip rows where required cells are missing
+        if (!activityCell || !dateCell) return false;
+        
+        const activity = activityCell.split(', ')[0];
+        const date = dateCell;
         const year = date.split("/")[2]; // Extract year from "MM/dd/YYYY" format
 
         return (
@@ -133,7 +189,7 @@ function calculateRouteTotals(rows, targetYear) {
             route = (locationArray[1] + ' ' + locationArray[2])
         }
 
-        date = row[dateIndex].split('"')[1] // TODO: Figure out how to get rid of orphaned quote on date. Comes from row splitting on (",")
+        date = row[dateIndex]
         
         const routeLongName = route 
         // const routeShortName = route.split(' ')[0]
@@ -178,7 +234,7 @@ function saveAsImage() {
         const reader = new FileReader();
         reader.onload = function(e) {
             const csvText = e.target.result;
-            const rows = csvText.split('\n').map(row => row.split('","')); // Each values is wrapped in double quotes, since some values contain internal commas
+            const rows = parseCSV(csvText);
             statistics = calculateRouteTotals(rows, targetYear)
             printResult(statistics)
         };
