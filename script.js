@@ -1,21 +1,18 @@
 function parseCSV(csvText) {
-    // Handle CSV with multi-line quoted fields
     const rows = [];
     let currentRow = [];
     let currentField = '';
     let insideQuotes = false;
-    
+
     for (let i = 0; i < csvText.length; i++) {
         const char = csvText[i];
         const nextChar = csvText[i + 1];
-        
+
         if (char === '"') {
             if (insideQuotes && nextChar === '"') {
-                // Escaped quote
                 currentField += '"';
-                i++; // Skip next quote
+                i++;
             } else {
-                // Toggle quote state
                 insideQuotes = !insideQuotes;
             }
         } else if (char === ',' && !insideQuotes) {
@@ -33,15 +30,14 @@ function parseCSV(csvText) {
             currentField += char;
         }
     }
-    
-    // Don't forget the last field/row
+
     if (currentField || currentRow.length > 0) {
         currentRow.push(currentField);
         if (currentRow.length > 1 || currentRow[0] !== '') {
             rows.push(currentRow);
         }
     }
-    
+
     return rows;
 }
 
@@ -51,9 +47,10 @@ function runScript() {
 
     const yearInput = document.getElementById('year-input');
     const targetYear = yearInput.value;
+
     if (file) {
         const reader = new FileReader();
-        reader.onload = function(e) {
+        reader.onload = function (e) {
             const csvText = e.target.result;
             const rows = parseCSV(csvText);
             statistics = calculateRouteTotals(rows, targetYear)
@@ -64,7 +61,6 @@ function runScript() {
 }
 
 function displayStats(statistics) {
-    // Statistics = [[route numbers], number of taps, [Stop Names], topRoutes, topStops]
     const output = document.getElementById('stats-output');
     output.innerHTML = (
         `<div class="result" id="wrapped-result">
@@ -153,13 +149,13 @@ function calculateRouteTotals(rows, targetYear) {
     const filteredRows = dataRows.filter(row => {
         // Guard against malformed/empty rows in the CSV
         if (!row || row.length === 0) return false;
-        
+
         const activityCell = row[activityIndex];
         const dateCell = row[dateIndex];
-        
+
         // Skip rows where required cells are missing
         if (!activityCell || !dateCell) return false;
-        
+
         const activity = activityCell.split(', ')[0];
         const date = dateCell;
         const year = date.split("/")[2]; // Extract year from "MM/dd/YYYY" format
@@ -174,25 +170,39 @@ function calculateRouteTotals(rows, targetYear) {
     var routeCount = {}
     var dateCount = {}
     filteredRows.forEach(row => {
-        const locationArray = row[locationIndex].split(': ') // ['Line','4 ..., Stop', '23rd...']
+        const locationArray = row[locationIndex].split(': ')
+        const activity = row[activityIndex]
 
         let route = null
         let stop = null
         let date = null
         const split_array = row[locationIndex].split(', Stop: ')
-        if (split_array.length === 2) { // Bus Route or Light Rail
+        if (split_array.length === 2) {
             route = split_array[0].split(': ')[1]
             stop = split_array[1]
-        } else if (locationArray.length === 2) { // Bus without Stop
+        } else if (locationArray.length === 2) {
             route = (locationArray[1])
-        } else { // Water taxi
+
+            if (route === 'One City Center') {
+                const deviceMatch = activity.match(/Device number:\s*(\d+)/i)
+                if (deviceMatch) {
+                    const deviceNumber = deviceMatch[1]
+                    const stationName = stopsLookup[deviceNumber]
+                    if (stationName) {
+                        route = `ORCA Reader - ${stationName}`
+                        stop = stationName
+                    } else {
+                        route = `ORCA Reader - Stop ${deviceNumber}`
+                    }
+                }
+            }
+        } else {
             route = (locationArray[1] + ' ' + locationArray[2])
         }
 
         date = row[dateIndex]
-        
-        const routeLongName = route 
-        // const routeShortName = route.split(' ')[0]
+
+        const routeLongName = route
 
         if (routeLongName in routeCount) {
             routeCount[routeLongName] = routeCount[routeLongName] + 1
@@ -212,12 +222,12 @@ function calculateRouteTotals(rows, targetYear) {
             dateCount[date] = 1
         }
     });
-    
+
     const sortedRouteCount = Object.entries(routeCount).sort(([, valueA], [, valueB]) => valueB - valueA);
     const sortedStopCount = Object.entries(stopCount).sort(([, valueA], [, valueB]) => valueB - valueA); // Maybe sort this to not include "None"
     const sortedDateCount = Object.entries(dateCount).sort(([, valueA], [, valueB]) => valueB - valueA);
 
-    const topRoutes = sortedRouteCount.slice(0,5);
+    const topRoutes = sortedRouteCount.slice(0, 5);
     const topStops = sortedStopCount.slice(0, 5);
     const topDates = sortedDateCount.slice(0, 1);
 
@@ -232,7 +242,7 @@ function saveAsImage() {
     const targetYear = yearInput.value;
     if (file) {
         const reader = new FileReader();
-        reader.onload = function(e) {
+        reader.onload = function (e) {
             const csvText = e.target.result;
             const rows = parseCSV(csvText);
             statistics = calculateRouteTotals(rows, targetYear)
@@ -246,11 +256,11 @@ function saveAsImage() {
         element.style.visibility = "visible";
 
         html2canvas(element).then((canvas) => {
-        const image = canvas.toDataURL("image/png");
-        const link = document.createElement("a");
-        link.href = image;
-        link.download = "wrapped-result.png";
-        link.click();
+            const image = canvas.toDataURL("image/png");
+            const link = document.createElement("a");
+            link.href = image;
+            link.download = "wrapped-result.png";
+            link.click();
         });
 
         element.style.visibility = "hidden";
@@ -260,9 +270,8 @@ function saveAsImage() {
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
-  
-  function printResult(statistics) {
-    // Statistics = [[route numbers], number of taps, [Stop Names], topRoutes, topStops]
+
+function printResult(statistics) {
     const output = document.getElementById('result-printed');
     output.innerHTML = (
         `<div class="result" id="wrapped-result-printed">
