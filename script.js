@@ -1,3 +1,7 @@
+/**
+ * Calculates statistics about ORCA card usage from a CSV file and displays the
+ * results on a webpage.
+ */
 function runScript() {
     const fileInput = document.getElementById('csvFileInput')
     const file = fileInput.files[0];
@@ -16,6 +20,10 @@ function runScript() {
     }
 }
 
+/**
+ * Takes in statistics about ORCA card usage and updates the webpage to display the results.
+ * @param {Object} statistics 
+ */
 function displayStats(statistics) {
     // Statistics = [[route numbers], number of taps, topRoutes, topStops, topDates, sortedRouteCount, sortedStopCount, sortedBusCount, topBuses, targetYear]
     const output = document.getElementById('stats-output');
@@ -106,6 +114,12 @@ function displayStats(statistics) {
     )
 }
 
+/**
+ * Takes rows of data and the target year of interest and calculates key statistics
+ * @param {Array<Array<string>>} rows 
+ * @param {string} targetYear 
+ * @returns {Object}
+ */
 function calculateRouteTotals(rows, targetYear) {
     const headers = rows[0];
     const dataRows = rows.slice(1);
@@ -207,6 +221,9 @@ function calculateRouteTotals(rows, targetYear) {
     ]
 }
 
+/**
+ * Saves the statistics HTML as an PNG image file.
+ */
 function saveAsImage() {
     const fileInput = document.getElementById('csvFileInput')
     const file = fileInput.files[0];
@@ -243,7 +260,12 @@ function saveAsImage() {
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
-  
+
+/**
+ * Creates the HTML for the statistics in a print-friendly format that isn't 
+ * dependent on the user's current viewport size. Inserts result into the DOM
+ * @param {Object} statistics 
+ */
 function printResult(statistics) {
     // Statistics = [[route numbers], number of taps, [Stop Names], topRoutes, topStops]
     const output = document.getElementById('result-printed');
