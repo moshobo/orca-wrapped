@@ -133,7 +133,7 @@ function calculateRouteTotals(rows, targetYear) {
         const year = date.split("/")[2]; // Extract year from "MM/dd/YYYY" format
 
         return (
-            (activity === "Transfer" || activity === "Boarding") &&
+            (activity === "Transfer" || activity === "Boarding" || activity === "ClientFare") &&
             year === targetYear
         );
     });
