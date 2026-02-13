@@ -17,13 +17,13 @@ function runScript() {
 }
 
 function displayStats(statistics) {
-    // Statistics = [[route numbers], number of taps, [Stop Names], topRoutes, topStops]
+    // Statistics = [[route numbers], number of taps, topRoutes, topStops, topDates, sortedRouteCount, sortedStopCount, sortedBusCount, topBuses, targetYear]
     const output = document.getElementById('stats-output');
     output.innerHTML = (
         `<div class="result" id="wrapped-result">
             <div class="result-header">
                 <div class="stat-row">
-                    <h3>ORCA Wrapped ${statistics[8]}</h3>
+                    <h3>ORCA Wrapped ${statistics[10]}</h3>
                 </div>
             </div>
             <div class="headline-stats">
@@ -72,7 +72,7 @@ function displayStats(statistics) {
         <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
         <script src="script.js"></script>
         <div>
-            <div class="list-container" id="all-routes">
+            <div class="list-container list-container-no-background">
                 <div class="stat-row">
                     <h3>All Routes</h3>
                 </div>
@@ -82,13 +82,23 @@ function displayStats(statistics) {
                     </ul>
                 </div>
             </div>
-            <div class="list-container" id="all-stops">
+            <div class="list-container list-container-no-background">
                 <div class="stat-row">
                     <h3>All Stops</h3>
                 </div>
                 <div>
                     <ul>
                         ${statistics[7].map(([key, value]) => `<li>${key} | ${value} taps</li>`).join("")}
+                    </ul>
+                </div>
+            </div>
+            <div class="list-container list-container-no-background">
+                <div class="stat-row">
+                    <h3>All Busses</h3>
+                </div>
+                <div>
+                    <ul>
+                        ${statistics[8].map(([key, value]) => `<li>#${key} | ${value} trips</li>`).join("")}
                     </ul>
                 </div>
             </div>
@@ -117,16 +127,32 @@ function calculateRouteTotals(rows, targetYear) {
     let stopCount = {}
     var routeCount = {}
     var dateCount = {}
+    var busCount = {}
     filteredRows.forEach(row => {
         const locationArray = row[locationIndex].split(': ') // ['Line','4 ..., Stop', '23rd...']
 
         let route = null
         let stop = null
         let date = null
+
+        // Parse data out of Location column
         const split_array = row[locationIndex].split(', Stop: ')
         if (split_array.length === 2) { // Bus Route or Light Rail
             route = split_array[0].split(': ')[1]
             stop = split_array[1]
+
+            // Get bus number from activity column, if possible
+            activity = row[activityIndex]
+            const busMatch = activity.match(/Bus number:\s*(\d+)/i)
+            if (busMatch) {
+                const busNumber = busMatch[1]
+                if (busNumber in busCount) {
+                    busCount[busNumber] = busCount[busNumber] + 1
+                } else {
+                    busCount[busNumber] = 1
+                }
+            }
+
         } else if (locationArray.length === 2) { // Bus without Stop
             route = (locationArray[1])
         } else { // Water taxi
@@ -135,8 +161,7 @@ function calculateRouteTotals(rows, targetYear) {
 
         date = row[dateIndex].split('"')[1] // TODO: Figure out how to get rid of orphaned quote on date. Comes from row splitting on (",")
         
-        const routeLongName = route 
-        // const routeShortName = route.split(' ')[0]
+        const routeLongName = route
 
         if (routeLongName in routeCount) {
             routeCount[routeLongName] = routeCount[routeLongName] + 1
@@ -160,12 +185,26 @@ function calculateRouteTotals(rows, targetYear) {
     const sortedRouteCount = Object.entries(routeCount).sort(([, valueA], [, valueB]) => valueB - valueA);
     const sortedStopCount = Object.entries(stopCount).sort(([, valueA], [, valueB]) => valueB - valueA); // Maybe sort this to not include "None"
     const sortedDateCount = Object.entries(dateCount).sort(([, valueA], [, valueB]) => valueB - valueA);
+    const sortedBusCount = Object.entries(busCount).sort(([, valueA], [, valueB]) => valueB - valueA);
 
     const topRoutes = sortedRouteCount.slice(0,5);
     const topStops = sortedStopCount.slice(0, 5);
     const topDates = sortedDateCount.slice(0, 1);
+    const topBuses = sortedBusCount.slice(0, 1);
 
-    return [routeCount, filteredRows.length, stopCount, topRoutes, topStops, topDates, sortedRouteCount, sortedStopCount, targetYear]
+    return [
+        routeCount, 
+        filteredRows.length, 
+        stopCount, 
+        topRoutes, 
+        topStops, 
+        topDates, 
+        sortedRouteCount, 
+        sortedStopCount, 
+        sortedBusCount,
+        topBuses, 
+        targetYear
+    ]
 }
 
 function saveAsImage() {
@@ -205,14 +244,15 @@ function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
   
-  function printResult(statistics) {
+function printResult(statistics) {
     // Statistics = [[route numbers], number of taps, [Stop Names], topRoutes, topStops]
     const output = document.getElementById('result-printed');
+    console.log(statistics) 
     output.innerHTML = (
         `<div class="result" id="wrapped-result-printed">
             <div class="result-header">
                 <div class="stat-row">
-                    <h3>ORCA Wrapped ${statistics[8]}</h3>
+                    <h3>ORCA Wrapped ${statistics[10]}</h3>
                 </div>
             </div>
             <div class="headline-stats">
