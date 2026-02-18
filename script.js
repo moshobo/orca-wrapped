@@ -133,7 +133,7 @@ function calculateRouteTotals(rows, targetYear) {
         const year = date.split("/")[2]; // Extract year from "MM/dd/YYYY" format
 
         return (
-            (activity === "Transfer" || activity === "Boarding") &&
+            (activity === "Transfer" || activity === "Boarding" || activity === "ClientFare") &&
             year === targetYear
         );
     });
@@ -142,18 +142,37 @@ function calculateRouteTotals(rows, targetYear) {
     var routeCount = {}
     var dateCount = {}
     var busCount = {}
+    var paymentTerminalsWSF = ['Seattle', 'Edmonds', 'Fauntleroy', 'Southworth', 'Point Defiance', 'Mukilteo', 'Port Townsend', 'Anacortes']
+
     filteredRows.forEach(row => {
         const locationArray = row[locationIndex].split(': ') // ['Line','4 ..., Stop', '23rd...']
 
-        let route = null
+        let routeLongName = null
         let stop = null
         let date = null
 
         // Parse data out of Location column
         const split_array = row[locationIndex].split(', Stop: ')
-        if (split_array.length === 2) { // Bus Route or Light Rail
-            route = split_array[0].split(': ')[1]
+        if (split_array.length === 2) { // Bus, Light Rail, or Washington State Ferry (WSF)
+            routeLongName = split_array[0].split(': ')[1]
             stop = split_array[1]
+
+            if (stop === "WSF") {
+                // This is the only route that charges both directions, so the stop can't be determined from the route
+                if (routeLongName === 'Point Townsend - Coupeville' || routeLongName === 'Coupeville - Point Townsend') {
+                    stop = 'Point Townsend or Coupeville'
+                }
+                // Other routes only charge on one end of the route, so the stop can be determined from the route name
+                else {
+                    let stops = routeLongName.split(' - ')
+                    stops = stops.map(s => s.trim());
+                    const terminal = stops.find(s => paymentTerminalsWSF.includes(s));
+                    if (terminal) {
+                        stop = terminal;
+                    }
+                }
+                
+            }
 
             // Get bus number from activity column, if possible
             activity = row[activityIndex]
@@ -167,15 +186,18 @@ function calculateRouteTotals(rows, targetYear) {
                 }
             }
 
-        } else if (locationArray.length === 2) { // Bus without Stop
-            route = (locationArray[1])
-        } else { // Water taxi
-            route = (locationArray[1] + ' ' + locationArray[2])
+        } else if (locationArray.length === 2) { // Bus without Stop or Fast Ferry
+            routeLongName = (locationArray[1])
+        } else if (locationArray.length === 3) { // KCM Water taxi
+            routeLongName = (locationArray[1] + ' ' + locationArray[2])
+        } else { // Washington State Ferry or other
+            routeLongName = locationArray
+            if (locationArray[0] === "Washington State Ferry (WSF)") {
+                routeLongName = "Washington State Ferry (WSF), undefined route"
+            }
         }
 
         date = row[dateIndex].split('"')[1] // TODO: Figure out how to get rid of orphaned quote on date. Comes from row splitting on (",")
-        
-        const routeLongName = route
 
         if (routeLongName in routeCount) {
             routeCount[routeLongName] = routeCount[routeLongName] + 1
@@ -269,7 +291,6 @@ function sleep(ms) {
 function printResult(statistics) {
     // Statistics = [[route numbers], number of taps, [Stop Names], topRoutes, topStops]
     const output = document.getElementById('result-printed');
-    console.log(statistics) 
     output.innerHTML = (
         `<div class="result" id="wrapped-result-printed">
             <div class="result-header">
