@@ -168,7 +168,10 @@ a:visited {
     width: 36px;
     filter: invert(1);
 }
-#all-routes li, #all-stops li {
+.list-container-no-background {
+    margin-top: var(--space-medium);
+}
+.list-container-no-background li {
     color: var(--background-0);
 }
 #result-printed {
