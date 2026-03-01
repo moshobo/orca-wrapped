@@ -74,6 +74,20 @@ function runScript() {
 function displayStats(statistics) {
     // Statistics = [[route numbers], number of taps, topRoutes, topStops, topDates, sortedRouteCount, sortedStopCount, sortedBusCount, topBuses, targetYear]
     const output = document.getElementById('stats-output');
+
+    // Check to see if statistics are valid before trying to display them
+    if (!statistics || statistics.length === 0 || Object.entries(statistics[0]).length === 0) {
+        console.error(`No data available for ${statistics[10]}.`);
+        console.log(statistics)
+        output.innerHTML = (
+            `<div class="dialog dialog--error">
+                <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+                <p>No data available for ${statistics[10]}.</p>
+            </div>`
+        )
+        return;
+    }
+
     output.innerHTML = (
         `<div class="result" id="wrapped-result">
             <div class="result-header">
