@@ -255,8 +255,6 @@ function calculateRouteTotals(rows, targetYear) {
 
         date = row[dateIndex]
 
-        routeLongName = route
-
         if (routeLongName in routeCount) {
             routeCount[routeLongName] = routeCount[routeLongName] + 1
         } else {
