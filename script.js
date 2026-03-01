@@ -49,19 +49,38 @@ function parseCSV(csvText) {
     return rows;
 }
 
-function runScript() {
-    const fileInput = document.getElementById('csvFileInput')
-    const file = fileInput.files[0];
-
+function runScript(exampleFile = false, year = null) {
     const yearInput = document.getElementById('year-input');
-    const targetYear = yearInput.value;
-    if (file) {
+    const targetYear = String(year ?? yearInput?.value ?? '');
+    const fileInput = document.getElementById('csvFileInput');
+    const file = exampleFile
+        ? "test-file.csv"
+        : fileInput?.files?.[0] ?? null;
+
+    if (!file) {
+        console.error('No file selected.');
+        return;
+    }
+
+    if (typeof file === 'string') {
+        fetch(file)
+            .then(response => {
+                if (!response.ok) throw new Error(`Failed to fetch ${file}: ${response.statusText}`);
+                return response.text();
+            })
+            .then(csvText => {
+                const rows = parseCSV(csvText);
+                const statistics = calculateRouteTotals(rows, targetYear);
+                displayStats(statistics);
+            })
+            .catch(err => console.error(err));
+    } else {
         const reader = new FileReader();
         reader.onload = function (e) {
             const csvText = e.target.result;
             const rows = parseCSV(csvText);
-            statistics = calculateRouteTotals(rows, targetYear)
-            displayStats(statistics)
+            const statistics = calculateRouteTotals(rows, targetYear);
+            displayStats(statistics);
         };
         reader.readAsText(file);
     }
@@ -74,6 +93,19 @@ function runScript() {
 function displayStats(statistics) {
     // Statistics = [[route numbers], number of taps, topRoutes, topStops, topDates, sortedRouteCount, sortedStopCount, sortedBusCount, topBuses, targetYear]
     const output = document.getElementById('stats-output');
+
+    // Check to see if statistics are valid before trying to display them
+    if (!statistics || statistics.length === 0 || Object.entries(statistics[0]).length === 0) {
+        console.error(`No data available for ${statistics[10]}.`);
+        output.innerHTML = (
+            `<div class="dialog dialog--error">
+                <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+                <p>No data available for ${statistics[10]}.</p>
+            </div>`
+        )
+        return;
+    }
+
     output.innerHTML = (
         `<div class="result" id="wrapped-result">
             <div class="result-header">
