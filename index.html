@@ -62,7 +62,8 @@
                         />
                     </div>
                     <div>
-                        <button id="run-script" onclick="runScript()">Load</button>
+                        <button id="run-script" onclick="runScript(exampleFile=false)">Load</button>
+                        <button class="button--secondary" id="use-example" onclick="runScript(exampleFile=true, year=2025)">Use Example File</button>
                     </div>
                     <div id="output"></div>
                 </div>
